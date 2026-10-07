@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Simple Penguin">
+  <h1>Simple Penguin</h1>
+  <p class="page-intro">Le jeu de donnees JSON des manchots affiche dans un nuage de points.</p>
+
+  <div class="chart-card">
+    <div id="plot" class="plot-container" aria-label="Nuage de points des manchots"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import penguins from "../data/penguins.json";
+
+  const plotContainer = document.querySelector<HTMLDivElement>("#plot");
+  const data = penguins.filter((penguin) => penguin.culmen_length_mm && penguin.culmen_depth_mm);
+
+  if (plotContainer) {
+    const plot = Plot.plot({
+      grid: true,
+      x: { label: "Longueur du bec (mm)" },
+      y: { label: "Profondeur du bec (mm)" },
+      color: { legend: true },
+      marks: [
+        Plot.dot(data, {
+          x: "culmen_length_mm",
+          y: "culmen_depth_mm",
+          stroke: "species"
+        })
+      ]
+    });
+    plotContainer.append(plot);
+  }
+</script>

@@ -1,21 +1,44 @@
 ---
-import PlotFigure from "../components/PlotFigure.astro";
-import Layout from "../layouts/Layout.astro";
 import * as Plot from "@observablehq/plot";
-import penguins from "../assets/penguins.json";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PlotFigure from "../components/PlotFigure.astro";
+import rawPenguins from "../data/penguins.json";
+
+const penguins = rawPenguins
+  .filter((d) => d.culmen_length_mm && d.culmen_depth_mm)
+  .map(({ species, culmen_length_mm, culmen_depth_mm }) => ({
+    species,
+    culmen_length_mm,
+    culmen_depth_mm
+  }));
+
+const scatterOptions = {
+  title: "Morphologie du bec des manchots de Palmer",
+  subtitle: "Relation entre la longueur et la profondeur du bec (en mm)",
+  caption: "Figure 1. Nuage de points par espèce.",
+  ariaLabel: "Nuage de points représentant la longueur et la profondeur du bec selon l'espèce",
+  grid: true,
+  x: { label: "Longueur du bec (mm)" },
+  y: { label: "Profondeur du bec (mm)" },
+  color: { legend: true },
+  marks: [
+    Plot.dot(penguins, {
+      x: "culmen_length_mm",
+      y: "culmen_depth_mm",
+      stroke: "species",
+      ariaLabel: (d) => `${d.species} : ${d.culmen_length_mm}mm sur ${d.culmen_depth_mm}mm`
+    })
+  ]
+};
 ---
 
-<Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <PlotFigure
-    options={{
-      marks: [
-        Plot.dot(penguins, {
-          x: "culmen_length_mm",
-          y: "culmen_depth_mm",
-          stroke: "species",
-        }),
-      ],
-    }}
-  />
-</Layout>
+<BaseLayout title="Accueil — Vue d'ensemble">
+  <h1>Tableau de bord : Manchots de Palmer</h1>
+  <p class="page-intro">
+    Exploration interactive du jeu de données des manchots de l'archipel Palmer en Antarctique.
+  </p>
+
+  <div class="chart-card">
+    <PlotFigure options={scatterOptions} />
+  </div>
+</BaseLayout>
